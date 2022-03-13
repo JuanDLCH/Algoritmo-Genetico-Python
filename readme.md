@@ -1,8 +1,8 @@
-# Algoritmo genético
+# <strong>Algoritmo genético</strong>
 Lenguaje de programación: Python
 
 
-# Descripción:
+## <strong>Descripción:</strong>
 El programa recibe como parámetros una cantidad de generaciones y sus probabilidades tanto de cruce como de mutación.
 
 Teniendo como cromosomas iniciales cadenas de bits al azar (Caso por default: 16)
@@ -11,7 +11,7 @@ El algoritmo cruzará estos cromosomas obteniendo al término de cada generació
 
 Finalmente nos arrojará el cromosoma más cercano a nuestro resultado esperado
 
-# Detalles:
+## <strong>Detalles:</strong>
 - Cada cruce nos deja únicamente 2 cromosomas, con el número de alelos de padre y madre trocado para cada uno.
 
 - El punto donde los alelos de padre y madre se cruzan es aleatorio
