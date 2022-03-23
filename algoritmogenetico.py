@@ -28,10 +28,10 @@ def principal():
     print("\n\n************************************************************")
     print("\n\t\t\tEL MEJOR")
     print("\n************************************************************")
-    print("\n\tCadena binaria:  ", end = ' ')
-    Poblacion.the_best.printChromosome()
-    print()
-    print("\n\tx = " + str(Poblacion.the_best.x) + "\tAptitud = " + str(Poblacion.the_best.fitness))
-    print('\n\tPadres: ' + str(Poblacion.the_best.parents[0]) + "," + str(Poblacion.the_best.parents[1]))
+
+    t = PrettyTable(['Cadena Binaria', 'x', 'Aptitud', 'Padres'])
+    t.add_row([Poblacion.the_best.cromosoma, Poblacion.the_best.x, Poblacion.the_best.fitness, Poblacion.the_best.parents])
+    print(t)
+    print('\n\n')
     
 principal()

@@ -154,7 +154,7 @@ class Poblacion:
         while i < self.population_size:
             padre = self.parents[i].parents[0] if (self.parents[i].parents[0] >= 10 or self.parents[i].parents[0] < 0) else '0'+ str(self.parents[i].parents[0])
             madre = self.parents[i].parents[1] if (self.parents[i].parents[1] >= 10 or self.parents[i].parents[1] < 0) else '0'+ str(self.parents[i].parents[1])
-            t.add_row([str(i+1), self.parents[i].cromosoma , self.parents[i].x, self.parents[i].fitness, ('[ '+str(padre)+ '     ' + str(madre) +' ]')])
+            t.add_row([str(i+1), self.parents[i].cromosoma , round(self.parents[i].x, 10), round(self.parents[i].fitness, 10), ('[ '+str(padre)+ '     ' + str(madre) +' ]')])
             fitness_avg += self.parents[i].fitness
             if self.parents[i].fitness > self.parents[current_best].fitness:
                 current_best = i
