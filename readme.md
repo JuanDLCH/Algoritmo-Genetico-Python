@@ -17,3 +17,8 @@ Finalmente nos arrojará el cromosoma más cercano a nuestro resultado esperado
 - El punto donde los alelos de padre y madre se cruzan es aleatorio
 
 - Los padres de la primera población son [-1, -1] y se genera completamente al azar
+
+# Librerías
+```
+python -m pip install -U prettytable 
+```
