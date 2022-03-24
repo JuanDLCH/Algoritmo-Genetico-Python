@@ -1,3 +1,5 @@
+from sqlite3 import Time
+from time import time
 from typing import List
 from Individual import *
 import math as mt
@@ -18,8 +20,10 @@ class Poblacion:
         self.max_generations = max_generations
         self.parents = list()
         self.offspring = list()
+        self.roulette = list()
         self.parents : List[Individual]
         self.offspring : List[Individual]
+        self.roulette : List[float]
         for i in range(self.population_size):
             self.parents.append(Individual(self.chromosome_lenght))
             self.offspring.append(Individual(self.chromosome_lenght))
@@ -47,11 +51,11 @@ class Poblacion:
 
             #Llenar la ruleta con la probabilidad de cada individuo para ser seleccionado
     def updateRoulette(self):
-        i = 0
         sum_fitness = 0
+        i = 0
         for i in range(self.population_size):
             sum_fitness += self.parents[i].fitness
-        
+
         i = 0
         for i in range(self.population_size):
             self.roulette[i] = self.parents[i].fitness / sum_fitness
@@ -64,18 +68,17 @@ class Poblacion:
         i = 0
         while(suma < r):
             suma += self.roulette[i]
-            i+=1  
-        return i -1
+            if suma >= r:
+                return i
+            i+=1
 
     def generarHijos(self):
         i = 0
         while i < (self.population_size - 1):
-            selected_father = self.rouletteWheelSelection()
             selected_mother = self.rouletteWheelSelection()
+            selected_father = self.rouletteWheelSelection()
             
-            self.offspring[i], self.offspring[i+1] = self.crossover(self.parents[selected_father], self.parents[selected_mother])
-            self.offspring[i].parents[0] = self.offspring[i+1].parents[1] = selected_father + 1
-            self.offspring[i].parents[1] = self.offspring[i+1].parents[0] = selected_mother + 1
+            self.crossover(selected_father, selected_mother, i)
             
             self.offspring[i] = self.mutation(self.offspring[i])
             self.offspring[i] = self.evaluateTargetFunction(self.offspring[i])
@@ -85,35 +88,33 @@ class Poblacion:
             i+=2
 
     #Recombinacion de los padres seleccionados
-    def crossover(self, father: Individual, mother: Individual):
+    def crossover(self, father: int, mother: int, pos):
         hijo1 = Individual(self.chromosome_lenght)
         hijo2 = Individual(self.chromosome_lenght)
-        
-        i = 0
+
         if flip(self.crossover_probability) == 1:
             p = rnd.randint(1, self.chromosome_lenght - 2)
             i = 0
-            while(i <= p):
-                hijo1.cromosoma[i] = father.cromosoma[i]
+            for i in range(p):
+                hijo1.cromosoma[i] = self.parents[father].cromosoma[i]
                 if i+p < self.chromosome_lenght:
-                    hijo2.cromosoma[i+p] = mother.cromosoma[i]
-                i+=1
-                
+                    hijo2.cromosoma[i+p] = self.parents[mother].cromosoma[i]
             i = p+1
-            while(i < self.chromosome_lenght):
-                hijo1.cromosoma[i] = mother.cromosoma[i]
-                hijo2.cromosoma[i-p-1] = father.cromosoma[i]
-                i+=1
-            
+            for i in range(self.chromosome_lenght):
+                hijo1.cromosoma[i] = self.parents[mother].cromosoma[i]
+                hijo2.cromosoma[i-p-1] = self.parents[father].cromosoma[i]
             hijo1.crossover_place = hijo2.crossover_place = p
         else:
             i = 0
-            while(i < self.chromosome_lenght):
-                hijo1.cromosoma[i] = father.cromosoma[i]
-                hijo2.cromosoma[i] = mother.cromosoma[i]
-                i+=1
+            hijo1.cromosoma = self.parents[father].cromosoma
+            hijo2.cromosoma = self.parents[mother].cromosoma
             hijo1.crossover_place = hijo2.crossover_place = -1
-        return hijo1, hijo2
+
+        hijo1.parents[0] = hijo2.parents[0] = father
+        hijo2.parents[1] = hijo1.parents[1] = mother
+
+        self.offspring[pos] = hijo1
+        self.offspring[pos+1] = hijo2
 
         #Realizar mutacion
     def mutation(self, individual: Individual):
@@ -132,14 +133,13 @@ class Poblacion:
         worst_child1 = worst_child2 = 0
         best_parent = 0
         i = 0
-        while i < self.population_size:
+        for i in range(self.population_size):
             if self.offspring[i].fitness > self.offspring[worst_child1].fitness:
                 worst_child1 = i
             elif self.offspring[i].fitness > self.offspring[worst_child2].fitness:
                 worst_child2 = i
             if self.parents[i].fitness > self.parents[best_parent].fitness:
                 best_parent = i
-            i+=1
 
         self.offspring[worst_child1] = self.parents[best_parent]
         self.offspring[worst_child2] = self.parents[best_parent]
@@ -154,7 +154,7 @@ class Poblacion:
         while i < self.population_size:
             padre = self.parents[i].parents[0] if (self.parents[i].parents[0] >= 10 or self.parents[i].parents[0] < 0) else '0'+ str(self.parents[i].parents[0])
             madre = self.parents[i].parents[1] if (self.parents[i].parents[1] >= 10 or self.parents[i].parents[1] < 0) else '0'+ str(self.parents[i].parents[1])
-            t.add_row([str(i+1), self.parents[i].cromosoma , round(self.parents[i].x, 10), round(self.parents[i].fitness, 10), ('[ '+str(padre)+ '     ' + str(madre) +' ]')])
+            t.add_row([i, self.parents[i].cromosoma , round(self.parents[i].x, 10), round(self.parents[i].fitness, 10), ('[ '+str(padre)+ '     ' + str(madre) +' ]')])
             fitness_avg += self.parents[i].fitness
             if self.parents[i].fitness > self.parents[current_best].fitness:
                 current_best = i
