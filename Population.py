@@ -60,7 +60,6 @@ class Poblacion:
         for i in range(self.population_size):
             self.roulette[i] = self.parents[i].fitness / sum_fitness
 
-
     #Se hace la seleccion por ruleta
     def rouletteWheelSelection(self):
         r = rnd.random()
